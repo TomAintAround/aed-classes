@@ -5,7 +5,7 @@
 #include "compare.h"
 
 void printStudent(struct Student student) {
-	printf("{%d, %d, %d}", student.id, student.courseType, student.grade);
+	printf("(%d, %d, %d)", student.id, student.courseType, student.grade);
 }
 
 void printStudents(struct Student* students, size_t num) {
