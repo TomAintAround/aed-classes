@@ -11,7 +11,7 @@
     };
   in {
     devShells.${system}.default = pkgs.mkShell {
-      packages = with pkgs; [python313 jdk25 gcc gnumake];
+      packages = with pkgs; [python313 jdk25 gcc gnumake bear];
     };
   };
 }
