@@ -1,6 +1,8 @@
 .direnv
 src/Project1/inputs/
 src/Project1/results/
+*.txt
+*.csv
 
 # Python
 # Byte-compiled / optimized / DLL files
