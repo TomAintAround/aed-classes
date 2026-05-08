@@ -10,16 +10,8 @@
       config.allowUnfree = true;
     };
   in {
-    devShells.${system}.default = let
-      python =
-        pkgs.python313.withPackages
-        (ps:
-          with ps; [
-            debugpy
-          ]);
-    in
-      pkgs.mkShell {
-        packages = with pkgs; [python jdk25];
-      };
+    devShells.${system}.default = pkgs.mkShell {
+      packages = with pkgs; [python313 jdk25 gcc gnumake];
+    };
   };
 }
