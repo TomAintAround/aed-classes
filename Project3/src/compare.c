@@ -1,4 +1,4 @@
-#include "compare.h"
+#include "../lib/compare.h"
 
 int compare1(struct Student* first, struct Student* second) {
 	if (first->id < second->id) return -1;

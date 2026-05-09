@@ -1,8 +1,8 @@
 #include <stddef.h>
 #include <stdio.h>
-#include "algorithms.h"
-#include "common.h"
-#include "compare.h"
+#include "../lib/algorithms.h"
+#include "../lib/common.h"
+#include "../lib/compare.h"
 
 void printStudent(struct Student student) {
 	printf("(%d, %d, %d)", student.id, student.courseType, student.grade);

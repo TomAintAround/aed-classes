@@ -1,6 +1,7 @@
-#include "algorithms.h"
 #include <stddef.h>
 #include <stdio.h>
+#include "../lib/algorithms.h"
+#include "../lib/common.h"
 
 void bubbleSort(struct Student* students, size_t num,
 				int (*compareAlgo)(struct Student*, struct Student*)) {
