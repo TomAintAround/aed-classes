@@ -74,19 +74,13 @@ int main() {
 	size_t num3 = sizeof(students1) / sizeof(struct Student);
 
 	printStudents(students1, num1);
-	bubbleSort(students1, num1, compare1);
+	printf("\n--------------\n\n");
+
+	mergeSort(students1, 0, num1 - 1, compare1);
 	printStudents(students1, num1);
-
-	printf("\n--------------\n\n");
-
+	mergeSort(students2, 0, num2 - 1, compare2);
 	printStudents(students2, num2);
-	bubbleSort(students2, num2, compare2);
-	printStudents(students2, num2);
-
-	printf("\n--------------\n\n");
-
-	printStudents(students3, num3);
-	bubbleSort(students3, num3, compare3);
+	mergeSort(students3, 0, num3 - 1, compare3);
 	printStudents(students3, num3);
 
 	return 0;
