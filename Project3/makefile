@@ -9,7 +9,7 @@ TARGET = $(BUILD_DIR)/project3
 TARGET_DEBUG = $(BUILD_DIR)/project3-debug
 
 BASE_FLAGS = -std=c23 -Wall -Wextra -Wfloat-equal -Wundef -Wshadow -Wpointer-arith -Wcast-align
-CFLAGS = $(BASE_FLAGS) -O2
+CFLAGS = $(BASE_FLAGS) -O3
 
 .PHONY: all debug clean 
 
