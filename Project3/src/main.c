@@ -112,15 +112,18 @@ static void testAlgos(SortAlgo algo, char* algoName, struct Student** arrays, ch
 			struct timespec start, end;
 			snprintf(message, LOG_SIZE, "\t\t%zu estudantes (%d): ", sizes[size], rep + 1);
 			logMessage(message, logFile);
+			fflush(logFile);
 			if (!timespec_get(&start, TIME_UTC)) perror("timespec_get failed");
 			algo(studentsCopy, 0, sizes[size] - 1, comparator);
 			if (!timespec_get(&end, TIME_UTC)) perror("timespec_get failed");
 			double elapsed = elapsedSeconds(&start, &end);
 			snprintf(message, LOG_SIZE, "%.9f segundos\n", elapsed);
 			logMessage(message, logFile);
+			fflush(logFile);
 
 			fprintf(csvResult, "%s,%s,%d,%zu,%d,%.9f\n", algoName, arrayType,
 					comparatorNum, sizes[size], rep + 1, elapsed);
+			fflush(csvResult);
 
 			free(studentsCopy);
 		}
@@ -142,6 +145,7 @@ int main() {
 	}
 	fprintf(csvResult,
 			"algorithm,arrayType,comparatorNum,size,rep,timeSeconds\n");
+	fflush(csvResult);
 
 	int numReps = 3;
 	size_t sizes[] = { 1'000, 10'000, 100'000, 1'000'000 };
@@ -273,16 +277,19 @@ int main() {
 	for (int algo = 0; algo < numAlgos; algo++) {
 		snprintf(message, LOG_SIZE, "Testando algorítmo: %s Sort\n", algosName[algo]);
 		logMessage(message, logFile);
+		fflush(logFile);
 
 		for (int type = 0; type < numTypesArrays; type++) {
 			snprintf(message, LOG_SIZE, "Testando com conjunto de dados com ID %s:\n",
 					 typesMessages[type]);
 			logMessage(message, logFile);
+			fflush(logFile);
 
 			for (int comparator = 0; comparator < numComparators; comparator++) {
 				snprintf(message, LOG_SIZE,
 						 "\tTestando algoritmo de comparação %d:\n", comparator + 1);
 				logMessage(message, logFile);
+				fflush(logFile);
 
 				testAlgos(algos[algo], algosName[algo], typesArrays[type],
 						  typesMessages[type], comparators[comparator], comparator + 1,
