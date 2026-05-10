@@ -101,6 +101,8 @@ static void testAlgos(SortAlgo algo, char* algoName, struct Student** arrays, ch
 		for (int rep = 0; rep < numReps; rep++) {
 			struct Student* studentsCopy = malloc(sizeof(struct Student) * sizes[size]);
 			if (studentsCopy == NULL) {
+				fclose(logFile);
+				fclose(csvResult);
 				fprintf(stderr, "Erro ao fazer malloc para um array de "
 								"cópia\n");
 				exit(1);
@@ -113,11 +115,12 @@ static void testAlgos(SortAlgo algo, char* algoName, struct Student** arrays, ch
 			if (!timespec_get(&start, TIME_UTC)) perror("timespec_get failed");
 			algo(studentsCopy, 0, sizes[size] - 1, comparator);
 			if (!timespec_get(&end, TIME_UTC)) perror("timespec_get failed");
-			snprintf(message, LOG_SIZE, "%.9f seconds\n", elapsedSeconds(&start, &end));
+			double elapsed = elapsedSeconds(&start, &end);
+			snprintf(message, LOG_SIZE, "%.9f seconds\n", elapsed);
 			logMessage(message, logFile);
 
 			fprintf(csvResult, "%s,%s,%d,%zu,%d,%.9f\n", algoName, arrayType,
-					comparatorNum, sizes[size], rep + 1, elapsedSeconds(&start, &end));
+					comparatorNum, sizes[size], rep + 1, elapsed);
 
 			free(studentsCopy);
 		}
@@ -137,6 +140,8 @@ int main() {
 		perror("Não foi possível escrever no ficheiro de resultados");
 		return 1;
 	}
+	fprintf(csvResult,
+			"algorithm,arrayType,comparatorNum,size,rep,timeSeconds\n");
 
 	int numReps = 3;
 	size_t sizes[] = { 1'000, 10'000, 100'000, 1'000'000 };
@@ -146,10 +151,10 @@ int main() {
 	struct Student* studentsAscId[numSizes * numReps];
 	for (int size = 0; size < numSizes; size++) {
 		for (int rep = 0; rep < numReps; rep++) {
-			char filename[32];
-			snprintf(filename, 32, "inputs/asc/%zu_%d.csv", sizes[size], rep + 1);
+			char filename[64];
+			snprintf(filename, 64, "inputs/asc/%zu_%d.csv", sizes[size], rep + 1);
 			FILE* csvInput = fopen(filename, "w");
-			if (csvResult == NULL) {
+			if (csvInput == NULL) {
 				fclose(logFile);
 				fclose(csvResult);
 				perror("Não foi possível escrever num ficheiro de input");
@@ -159,6 +164,9 @@ int main() {
 
 			studentsAscId[currPos] = malloc(sizeof(struct Student) * sizes[size]);
 			if (studentsAscId[currPos] == NULL) {
+				fclose(logFile);
+				fclose(csvResult);
+				fclose(csvInput);
 				fprintf(stderr, "Erro ao fazer malloc ao criar array com IDs "
 								"ascendentes\n");
 				return 1;
@@ -180,10 +188,10 @@ int main() {
 	struct Student* studentsDesId[numSizes * numReps];
 	for (int size = 0; size < numSizes; size++) {
 		for (int rep = 0; rep < numReps; rep++) {
-			char filename[32];
-			snprintf(filename, 32, "inputs/desc/%zu_%d.csv", sizes[size], rep + 1);
+			char filename[64];
+			snprintf(filename, 64, "inputs/desc/%zu_%d.csv", sizes[size], rep + 1);
 			FILE* csvInput = fopen(filename, "w");
-			if (csvResult == NULL) {
+			if (csvInput == NULL) {
 				fclose(logFile);
 				fclose(csvResult);
 				perror("Não foi possível escrever num ficheiro de input");
@@ -193,6 +201,9 @@ int main() {
 
 			studentsDesId[currPos] = malloc(sizeof(struct Student) * sizes[size]);
 			if (studentsDesId[currPos] == NULL) {
+				fclose(logFile);
+				fclose(csvResult);
+				fclose(csvInput);
 				fprintf(stderr, "Erro ao fazer malloc ao criar array com IDs "
 								"descendentes\n");
 				return 1;
@@ -214,10 +225,10 @@ int main() {
 	struct Student* studentsRandId[numSizes * numReps];
 	for (int size = 0; size < numSizes; size++) {
 		for (int rep = 0; rep < numReps; rep++) {
-			char filename[32];
-			snprintf(filename, 32, "inputs/rand/%zu_%d.csv", sizes[size], rep + 1);
+			char filename[64];
+			snprintf(filename, 64, "inputs/rand/%zu_%d.csv", sizes[size], rep + 1);
 			FILE* csvInput = fopen(filename, "w");
-			if (csvResult == NULL) {
+			if (csvInput == NULL) {
 				fclose(logFile);
 				fclose(csvResult);
 				perror("Não foi possível escrever num ficheiro de input");
@@ -227,6 +238,9 @@ int main() {
 
 			studentsRandId[currPos] = malloc(sizeof(struct Student) * sizes[size]);
 			if (studentsRandId[currPos] == NULL) {
+				fclose(logFile);
+				fclose(csvResult);
+				fclose(csvInput);
 				fprintf(stderr, "Erro ao fazer malloc ao criar array com IDs "
 								"espalhados\n");
 				return 1;
