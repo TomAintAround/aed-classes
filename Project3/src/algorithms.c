@@ -31,7 +31,7 @@ void mergeSort(struct Student* students, size_t start, size_t end,
 		mergeSort(students, start, middle, compareAlgo);
 		mergeSort(students, middle + 1, end, compareAlgo);
 
-		// Para evitar stack overflows, decidi criar arrays na heap
+		// Para evitar stack overflows, decidi criar arrays na heap e não na stack
 		size_t leftSize = middle - start + 1;
 		size_t rightSize = end - middle;
 
