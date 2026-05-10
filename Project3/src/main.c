@@ -91,8 +91,9 @@ static void logMessage(const char* message, FILE* file) {
 	printf("%s", message);
 }
 
-static void testAlgos(SortAlgo algo, struct Student** arrays, Comparator comparator,
-					  FILE* logFile, size_t* sizes, int numSizes, int numReps) {
+static void testAlgos(SortAlgo algo, char* algoName, struct Student** arrays, char* arrayType,
+					  Comparator comparator, int comparatorNum, FILE* logFile,
+					  FILE* csvResult, size_t* sizes, int numSizes, int numReps) {
 	char message[LOG_SIZE];
 
 	int currPos = 0;
@@ -115,6 +116,9 @@ static void testAlgos(SortAlgo algo, struct Student** arrays, Comparator compara
 			snprintf(message, LOG_SIZE, "%.9f seconds\n", elapsedSeconds(&start, &end));
 			logMessage(message, logFile);
 
+			fprintf(csvResult, "%s,%s,%d,%zu,%d,%.9f\n", algoName, arrayType,
+					comparatorNum, sizes[size], rep + 1, elapsedSeconds(&start, &end));
+
 			free(studentsCopy);
 		}
 	}
@@ -127,6 +131,12 @@ int main() {
 		perror("Não foi possível escrever no ficheiro log");
 		return 1;
 	}
+	FILE* csvResult = fopen("result.csv", "w");
+	if (csvResult == NULL) {
+		fclose(logFile);
+		perror("Não foi possível escrever no ficheiro de resultados");
+		return 1;
+	}
 
 	int numReps = 3;
 	size_t sizes[] = { 1'000, 10'000, 100'000, 1'000'000 };
@@ -134,48 +144,102 @@ int main() {
 
 	int currPos = 0;
 	struct Student* studentsAscId[numSizes * numReps];
-	for (int i = 0; i < numSizes; i++) {
-		for (int _ = 0; _ < numReps; _++) {
-			studentsAscId[currPos] = malloc(sizeof(struct Student) * sizes[i]);
+	for (int size = 0; size < numSizes; size++) {
+		for (int rep = 0; rep < numReps; rep++) {
+			char filename[32];
+			snprintf(filename, 32, "inputs/asc/%zu_%d.csv", sizes[size], rep + 1);
+			FILE* csvInput = fopen(filename, "w");
+			if (csvResult == NULL) {
+				fclose(logFile);
+				fclose(csvResult);
+				perror("Não foi possível escrever num ficheiro de input");
+				return 1;
+			}
+			fprintf(csvInput, "id,courseType,grade\n");
+
+			studentsAscId[currPos] = malloc(sizeof(struct Student) * sizes[size]);
 			if (studentsAscId[currPos] == NULL) {
 				fprintf(stderr, "Erro ao fazer malloc ao criar array com IDs "
 								"ascendentes\n");
 				return 1;
 			}
 
-			fillAscending(studentsAscId[currPos], sizes[i]);
+			fillAscending(studentsAscId[currPos], sizes[size]);
+			for (size_t i = 0; i < sizes[size]; i++) {
+				struct Student student = studentsAscId[currPos][i];
+				fprintf(csvInput, "%zu,%d,%d\n", student.id, student.courseType,
+						student.grade);
+			}
+
+			fclose(csvInput);
 			currPos++;
 		}
 	}
 
 	currPos = 0;
 	struct Student* studentsDesId[numSizes * numReps];
-	for (int i = 0; i < numSizes; i++) {
-		for (int _ = 0; _ < numReps; _++) {
-			studentsDesId[currPos] = malloc(sizeof(struct Student) * sizes[i]);
+	for (int size = 0; size < numSizes; size++) {
+		for (int rep = 0; rep < numReps; rep++) {
+			char filename[32];
+			snprintf(filename, 32, "inputs/desc/%zu_%d.csv", sizes[size], rep + 1);
+			FILE* csvInput = fopen(filename, "w");
+			if (csvResult == NULL) {
+				fclose(logFile);
+				fclose(csvResult);
+				perror("Não foi possível escrever num ficheiro de input");
+				return 1;
+			}
+			fprintf(csvInput, "id,courseType,grade\n");
+
+			studentsDesId[currPos] = malloc(sizeof(struct Student) * sizes[size]);
 			if (studentsDesId[currPos] == NULL) {
 				fprintf(stderr, "Erro ao fazer malloc ao criar array com IDs "
 								"descendentes\n");
 				return 1;
 			}
 
-			fillDescending(studentsDesId[currPos], sizes[i]);
+			fillDescending(studentsDesId[currPos], sizes[size]);
+			for (size_t i = 0; i < sizes[size]; i++) {
+				struct Student student = studentsDesId[currPos][i];
+				fprintf(csvInput, "%zu,%d,%d\n", student.id, student.courseType,
+						student.grade);
+			}
+
+			fclose(csvInput);
 			currPos++;
 		}
 	}
 
 	currPos = 0;
 	struct Student* studentsRandId[numSizes * numReps];
-	for (int i = 0; i < numSizes; i++) {
-		for (int _ = 0; _ < numReps; _++) {
-			studentsRandId[currPos] = malloc(sizeof(struct Student) * sizes[i]);
+	for (int size = 0; size < numSizes; size++) {
+		for (int rep = 0; rep < numReps; rep++) {
+			char filename[32];
+			snprintf(filename, 32, "inputs/rand/%zu_%d.csv", sizes[size], rep + 1);
+			FILE* csvInput = fopen(filename, "w");
+			if (csvResult == NULL) {
+				fclose(logFile);
+				fclose(csvResult);
+				perror("Não foi possível escrever num ficheiro de input");
+				return 1;
+			}
+			fprintf(csvInput, "id,courseType,grade\n");
+
+			studentsRandId[currPos] = malloc(sizeof(struct Student) * sizes[size]);
 			if (studentsRandId[currPos] == NULL) {
 				fprintf(stderr, "Erro ao fazer malloc ao criar array com IDs "
 								"espalhados\n");
 				return 1;
 			}
 
-			fillRandomly(studentsRandId[currPos], sizes[i]);
+			fillRandomly(studentsRandId[currPos], sizes[size]);
+			for (size_t i = 0; i < sizes[size]; i++) {
+				struct Student student = studentsRandId[currPos][i];
+				fprintf(csvInput, "%zu,%d,%d\n", student.id, student.courseType,
+						student.grade);
+			}
+
+			fclose(csvInput);
 			currPos++;
 		}
 	}
@@ -206,8 +270,9 @@ int main() {
 						 "\tTestando algoritmo de comparação %d:\n", comparator + 1);
 				logMessage(message, logFile);
 
-				testAlgos(algos[algo], typesArrays[type], comparators[comparator],
-						  logFile, sizes, numSizes, numReps);
+				testAlgos(algos[algo], algosName[algo], typesArrays[type],
+						  typesMessages[type], comparators[comparator], comparator + 1,
+						  logFile, csvResult, sizes, numSizes, numReps);
 			}
 		}
 	}
@@ -218,5 +283,6 @@ int main() {
 		free(studentsRandId[i]);
 	}
 	fclose(logFile);
+	fclose(csvResult);
 	return 0;
 }
