@@ -1,19 +1,25 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../lib/algorithms.h"
 #include "../lib/common.h"
 
 void bubbleSort(struct Student* students, size_t start, size_t end,
 				int (*compareAlgo)(struct Student*, struct Student*)) {
 	while (end > 0) {
+		bool swapped = false;
 		for (size_t i = start; i <= end - 1; i++) {
+			swapped = false;
+
 			if (compareAlgo(&students[i], &students[i + 1]) > 0) {
 				struct Student tmp = students[i];
 				students[i] = students[i + 1];
 				students[i + 1] = tmp;
+				swapped = true;
 			}
 		}
+		if (!swapped) return;
 		end--;
 	}
 }
