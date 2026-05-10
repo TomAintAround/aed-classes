@@ -1,87 +1,222 @@
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include "../lib/algorithms.h"
 #include "../lib/common.h"
 #include "../lib/compare.h"
 
-void printStudent(struct Student student) {
-	printf("(%d, %d, %d)", student.id, student.courseType, student.grade);
+static int binomialDistribution(int n, int p) {
+	int result = 0;
+
+	for (int i = 0; i < n; i++) {
+		if ((rand() % p) == 0) result++;
+	}
+
+	return result;
 }
 
-void printStudents(struct Student* students, size_t num) {
-	printf("{");
-	for (size_t i = 0; i < num - 1; i++) {
-		printStudent(students[i]);
-		printf(", ");
+static enum CourseType randomCourse() {
+	return (enum CourseType)(rand() % 3);
+}
+
+static void fillAscending(struct Student* students, size_t size) {
+	size_t numDuplicates = (size_t)(0.05 * (double)size);
+	size_t currId = 1;
+
+	size_t i = 0;
+	while (i < size) {
+		int repetitions = 1;
+		if (numDuplicates > 0 && (rand() % 100) < 5) {
+			repetitions = 2 + (rand() % 2);
+			numDuplicates--;
+		}
+
+		for (int r = 0; r < repetitions && i < size; r++, i++) {
+			students[i].id = currId;
+			students[i].courseType = randomCourse();
+			students[i].grade = 10 + binomialDistribution(10, 3);
+		}
+
+		currId++;
 	}
-	printStudent(students[num - 1]);
-	printf("}\n");
+}
+
+static void fillDescending(struct Student* students, size_t size) {
+	size_t numDuplicates = (size_t)(0.05 * (double)size);
+	size_t currId = size;
+
+	size_t i = 0;
+	while (i < size) {
+		int repetitions = 1;
+		if (numDuplicates > 0 && (rand() % 100) < 5) {
+			repetitions = 2 + (rand() % 2);
+			numDuplicates--;
+		}
+
+		for (int r = 0; r < repetitions && i < size; r++, i++) {
+			students[i].id = currId;
+			students[i].courseType = randomCourse();
+			students[i].grade = 10 + binomialDistribution(10, 3);
+		}
+
+		if (currId > 1) currId--;
+	}
+}
+
+static void fillRandomly(struct Student* students, size_t size) {
+	fillAscending(students, size);
+
+	for (size_t i = size - 1; i > 0; i--) {
+		size_t j = rand() % (i + 1);
+		struct Student tmp = students[i];
+		students[i] = students[j];
+		students[j] = tmp;
+	}
+}
+
+static double elapsedSeconds(struct timespec* start, struct timespec* end) {
+	time_t seconds = end->tv_sec - start->tv_sec;
+	long nanoseconds = end->tv_nsec - start->tv_nsec;
+	if (nanoseconds < 0) {
+		seconds--;
+		nanoseconds += 1'000'000'000L;
+	}
+	return (double)seconds + ((double)nanoseconds / 1e9);
+}
+
+static void logMessage(const char* message, FILE* file) {
+	fprintf(file, "%s", message);
+	printf("%s", message);
+}
+
+static void testAlgos(SortAlgo algo, struct Student** arrays, Comparator comparator,
+					  FILE* logFile, size_t* sizes, int numSizes, int numReps) {
+	char message[LOG_SIZE];
+
+	int currPos = 0;
+	for (int size = 0; size < numSizes; size++) {
+		for (int rep = 0; rep < numReps; rep++) {
+			struct Student* studentsCopy = malloc(sizeof(struct Student) * sizes[size]);
+			if (studentsCopy == NULL) {
+				fprintf(stderr, "Erro ao fazer malloc para um array de "
+								"cópia\n");
+				exit(1);
+			}
+			memcpy(studentsCopy, arrays[currPos++], sizes[size] * sizeof(struct Student));
+
+			struct timespec start, end;
+			snprintf(message, LOG_SIZE, "\t\t%zu estudantes (%d): ", sizes[size], rep + 1);
+			logMessage(message, logFile);
+			if (!timespec_get(&start, TIME_UTC)) perror("timespec_get failed");
+			algo(studentsCopy, 0, sizes[size] - 1, comparator);
+			if (!timespec_get(&end, TIME_UTC)) perror("timespec_get failed");
+			snprintf(message, LOG_SIZE, "%.9f seconds\n", elapsedSeconds(&start, &end));
+			logMessage(message, logFile);
+
+			free(studentsCopy);
+		}
+	}
 }
 
 int main() {
-	struct Student students1[] = {
-		{ 8,	 BACHELOR,			   11 },
-		{ 4,	 MASTER,				 10 },
-		{ 4,	 MASTER,				 10 },
-		{ 5,	 BACHELOR,			   13 },
-		{ 12, NON_DEGREE_GRANTING, 10 },
-		{ 6,	 BACHELOR,			   16 },
-		{ 7,	 MASTER,				 17 },
-		{ 9,	 MASTER,				 12 },
-		{ 2,	 BACHELOR,			   14 },
-		{ 10, MASTER,			  14 },
-		{ 10, BACHELOR,			14 },
-		{ 11, NON_DEGREE_GRANTING, 15 },
-		{ 1,	 NON_DEGREE_GRANTING, 14 },
-		{ 3,	 BACHELOR,			   10 },
-	};
-	size_t num1 = sizeof(students1) / sizeof(struct Student);
+	srand(time(NULL));
+	FILE* logFile = fopen("project3.log", "w");
+	if (logFile == NULL) {
+		perror("Não foi possível escrever no ficheiro log");
+		return 1;
+	}
 
-	struct Student students2[] = {
-		{ 8,	 BACHELOR,			   11 },
-		{ 4,	 MASTER,				 10 },
-		{ 4,	 MASTER,				 10 },
-		{ 5,	 BACHELOR,			   13 },
-		{ 12, NON_DEGREE_GRANTING, 10 },
-		{ 6,	 BACHELOR,			   16 },
-		{ 7,	 MASTER,				 17 },
-		{ 9,	 MASTER,				 12 },
-		{ 2,	 BACHELOR,			   14 },
-		{ 10, MASTER,			  14 },
-		{ 10, BACHELOR,			14 },
-		{ 11, NON_DEGREE_GRANTING, 15 },
-		{ 1,	 NON_DEGREE_GRANTING, 14 },
-		{ 3,	 BACHELOR,			   10 },
-	};
-	size_t num2 = sizeof(students1) / sizeof(struct Student);
+	int numReps = 3;
+	size_t sizes[] = { 1'000, 10'000, 100'000, 1'000'000 };
+	int numSizes = sizeof(sizes) / sizeof(sizes[0]);
 
-	struct Student students3[] = {
-		{ 8,	 BACHELOR,			   11 },
-		{ 4,	 MASTER,				 10 },
-		{ 4,	 MASTER,				 10 },
-		{ 5,	 BACHELOR,			   13 },
-		{ 12, NON_DEGREE_GRANTING, 10 },
-		{ 6,	 BACHELOR,			   16 },
-		{ 7,	 MASTER,				 17 },
-		{ 9,	 MASTER,				 12 },
-		{ 2,	 BACHELOR,			   14 },
-		{ 10, MASTER,			  14 },
-		{ 10, BACHELOR,			14 },
-		{ 11, NON_DEGREE_GRANTING, 15 },
-		{ 1,	 NON_DEGREE_GRANTING, 14 },
-		{ 3,	 BACHELOR,			   10 },
-	};
-	size_t num3 = sizeof(students1) / sizeof(struct Student);
+	int currPos = 0;
+	struct Student* studentsAscId[numSizes * numReps];
+	for (int i = 0; i < numSizes; i++) {
+		for (int _ = 0; _ < numReps; _++) {
+			studentsAscId[currPos] = malloc(sizeof(struct Student) * sizes[i]);
+			if (studentsAscId[currPos] == NULL) {
+				fprintf(stderr, "Erro ao fazer malloc ao criar array com IDs "
+								"ascendentes\n");
+				return 1;
+			}
 
-	printStudents(students1, num1);
-	printf("\n--------------\n\n");
+			fillAscending(studentsAscId[currPos], sizes[i]);
+			currPos++;
+		}
+	}
 
-	heapSort(students1, 0, num1 - 1, compare1);
-	printStudents(students1, num1);
-	heapSort(students2, 0, num2 - 1, compare2);
-	printStudents(students2, num2);
-	heapSort(students3, 0, num3 - 1, compare3);
-	printStudents(students3, num3);
+	currPos = 0;
+	struct Student* studentsDesId[numSizes * numReps];
+	for (int i = 0; i < numSizes; i++) {
+		for (int _ = 0; _ < numReps; _++) {
+			studentsDesId[currPos] = malloc(sizeof(struct Student) * sizes[i]);
+			if (studentsDesId[currPos] == NULL) {
+				fprintf(stderr, "Erro ao fazer malloc ao criar array com IDs "
+								"descendentes\n");
+				return 1;
+			}
 
+			fillDescending(studentsDesId[currPos], sizes[i]);
+			currPos++;
+		}
+	}
+
+	currPos = 0;
+	struct Student* studentsRandId[numSizes * numReps];
+	for (int i = 0; i < numSizes; i++) {
+		for (int _ = 0; _ < numReps; _++) {
+			studentsRandId[currPos] = malloc(sizeof(struct Student) * sizes[i]);
+			if (studentsRandId[currPos] == NULL) {
+				fprintf(stderr, "Erro ao fazer malloc ao criar array com IDs "
+								"espalhados\n");
+				return 1;
+			}
+
+			fillRandomly(studentsRandId[currPos], sizes[i]);
+			currPos++;
+		}
+	}
+
+	SortAlgo algos[] = { bubbleSort, mergeSort, heapSort };
+	char algosName[][8] = { "Bubble", "Merge", "Heap" };
+	int numAlgos = sizeof(algos) / sizeof(algos[0]);
+
+	Comparator comparators[] = { compare1, compare2, compare3 };
+	int numComparators = sizeof(comparators) / sizeof(comparators[0]);
+
+	struct Student** typesArrays[] = { studentsAscId, studentsDesId, studentsRandId };
+	char typesMessages[][16] = { "ascendente", "descendente", "espalhado" };
+	int numTypesArrays = sizeof(typesArrays) / sizeof(typesArrays[0]);
+
+	char message[LOG_SIZE];
+	for (int algo = 0; algo < numAlgos; algo++) {
+		snprintf(message, LOG_SIZE, "Testando algorítmo: %s Sort\n", algosName[algo]);
+		logMessage(message, logFile);
+
+		for (int type = 0; type < numTypesArrays; type++) {
+			snprintf(message, LOG_SIZE, "Testando com conjunto de dados com ID %s:\n",
+					 typesMessages[type]);
+			logMessage(message, logFile);
+
+			for (int comparator = 0; comparator < numComparators; comparator++) {
+				snprintf(message, LOG_SIZE,
+						 "\tTestando algoritmo de comparação %d:\n", comparator + 1);
+				logMessage(message, logFile);
+
+				testAlgos(algos[algo], typesArrays[type], comparators[comparator],
+						  logFile, sizes, numSizes, numReps);
+			}
+		}
+	}
+
+	for (int i = 0; i < numSizes * numReps; i++) {
+		free(studentsAscId[i]);
+		free(studentsDesId[i]);
+		free(studentsRandId[i]);
+	}
+	fclose(logFile);
 	return 0;
 }

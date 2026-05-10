@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+typedef int (*Comparator)(struct Student*, struct Student*);
+
 int compare1(struct Student* first, struct Student* second);
 int compare2(struct Student* first, struct Student* second);
 int compare3(struct Student* first, struct Student* second);

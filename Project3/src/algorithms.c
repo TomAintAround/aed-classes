@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../lib/algorithms.h"
+#include "../lib/compare.h"
 #include "../lib/common.h"
 
-void bubbleSort(struct Student* students, size_t start, size_t end,
-				int (*compareAlgo)(struct Student*, struct Student*)) {
+void bubbleSort(struct Student* students, size_t start, size_t end, Comparator compareAlgo) {
 	while (end > start) {
 		bool swapped = false;
 		for (size_t i = start; i <= end - 1; i++) {
@@ -22,8 +22,7 @@ void bubbleSort(struct Student* students, size_t start, size_t end,
 	}
 }
 
-void mergeSort(struct Student* students, size_t start, size_t end,
-			   int (*compareAlgo)(struct Student*, struct Student*)) {
+void mergeSort(struct Student* students, size_t start, size_t end, Comparator compareAlgo) {
 	if (start < end) {
 		size_t middle = start + ((end - start) / 2);
 		mergeSort(students, start, middle, compareAlgo);
@@ -34,7 +33,16 @@ void mergeSort(struct Student* students, size_t start, size_t end,
 		size_t rightSize = end - middle;
 
 		struct Student* leftStudents = malloc(sizeof(struct Student) * leftSize);
+		if (leftStudents == NULL) {
+			fprintf(stderr, "Erro ao fazer malloc em mergeSort\n");
+			exit(1);
+		}
 		struct Student* rightStudents = malloc(sizeof(struct Student) * rightSize);
+		if (rightStudents == NULL) {
+			free(leftStudents);
+			fprintf(stderr, "Erro ao fazer malloc em mergeSort\n");
+			exit(1);
+		}
 
 		for (size_t i = 0; i < leftSize; i++)
 			leftStudents[i] = students[start + i];
@@ -59,8 +67,8 @@ void mergeSort(struct Student* students, size_t start, size_t end,
 	}
 }
 
-static void heapify(struct Student* students, size_t start, size_t end, size_t root,
-					int (*compareAlgo)(struct Student*, struct Student*)) {
+static void heapify(struct Student* students, size_t start, size_t end,
+					size_t root, Comparator compareAlgo) {
 	while (true) {
 		size_t largest = root;
 		size_t left = (2 * (root - start)) + 1 + start;
@@ -81,8 +89,7 @@ static void heapify(struct Student* students, size_t start, size_t end, size_t r
 	}
 }
 
-void heapSort(struct Student* students, size_t start, size_t end,
-			  int (*compareAlgo)(struct Student*, struct Student*)) {
+void heapSort(struct Student* students, size_t start, size_t end, Comparator compareAlgo) {
 	size_t size = end + 1 - start;
 	for (long i = (long)((size / 2) - 1 + start); i >= (long)start; i--)
 		heapify(students, start, end, i, compareAlgo);

@@ -3,12 +3,12 @@
 
 #include <stddef.h>
 #include "common.h"
+#include "compare.h"
 
-void bubbleSort(struct Student* students, size_t start, size_t end,
-				int(compareAlgo)(struct Student*, struct Student*));
-void mergeSort(struct Student* students, size_t start, size_t end,
-			   int(compareAlgo)(struct Student*, struct Student*));
-void heapSort(struct Student* students, size_t start, size_t end,
-			  int(compareAlgo)(struct Student*, struct Student*));
+typedef void (*SortAlgo)(struct Student*, size_t, size_t, Comparator);
+
+void bubbleSort(struct Student* students, size_t start, size_t end, Comparator compareAlgo);
+void mergeSort(struct Student* students, size_t start, size_t end, Comparator compareAlgo);
+void heapSort(struct Student* students, size_t start, size_t end, Comparator compareAlgo);
 
 #endif
