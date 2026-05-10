@@ -258,8 +258,8 @@ int main() {
 		}
 	}
 
-	SortAlgo algos[] = { bubbleSort, mergeSort, heapSort };
-	char algosName[][8] = { "Bubble", "Merge", "Heap" };
+	SortAlgo algos[] = { heapSort, mergeSort, bubbleSort };
+	char algosName[][8] = { "Heap", "Merge", "Bubble" };
 	int numAlgos = sizeof(algos) / sizeof(algos[0]);
 
 	Comparator comparators[] = { compare1, compare2, compare3 };
