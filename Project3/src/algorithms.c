@@ -63,21 +63,23 @@ void mergeSort(struct Student* students, size_t start, size_t end,
 
 static void heapify(struct Student* students, size_t start, size_t end, size_t root,
 					int (*compareAlgo)(struct Student*, struct Student*)) {
-	size_t largest = root;
-	size_t left = (2 * (root - start)) + 1 + start;
-	size_t right = (2 * (root - start)) + 2 + start;
+	while (true) {
+		size_t largest = root;
+		size_t left = (2 * (root - start)) + 1 + start;
+		size_t right = (2 * (root - start)) + 2 + start;
 
-	if (left <= end && compareAlgo(&students[left], &students[largest]) > 0)
-		largest = left;
+		if (left <= end && compareAlgo(&students[left], &students[largest]) > 0)
+			largest = left;
 
-	if (right <= end && compareAlgo(&students[right], &students[largest]) > 0)
-		largest = right;
+		if (right <= end && compareAlgo(&students[right], &students[largest]) > 0)
+			largest = right;
 
-	if (largest != root) {
+		if (largest == root) break;
+
 		struct Student temp = students[root];
 		students[root] = students[largest];
 		students[largest] = temp;
-		heapify(students, start, end, largest, compareAlgo);
+		root = largest;
 	}
 }
 
