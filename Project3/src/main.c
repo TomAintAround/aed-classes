@@ -116,7 +116,7 @@ static void testAlgos(SortAlgo algo, char* algoName, struct Student** arrays, ch
 			algo(studentsCopy, 0, sizes[size] - 1, comparator);
 			if (!timespec_get(&end, TIME_UTC)) perror("timespec_get failed");
 			double elapsed = elapsedSeconds(&start, &end);
-			snprintf(message, LOG_SIZE, "%.9f seconds\n", elapsed);
+			snprintf(message, LOG_SIZE, "%.9f segundos\n", elapsed);
 			logMessage(message, logFile);
 
 			fprintf(csvResult, "%s,%s,%d,%zu,%d,%.9f\n", algoName, arrayType,
