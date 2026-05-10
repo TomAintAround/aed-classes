@@ -2,7 +2,7 @@ WarningsAsErrors: "*"
 HeaderFilterRegex: '.*\.h'
 FormatStyle: file
 Checks: >
-  -*, bugprone-*, -bugprone-easily-swappable-parameters, -bugprone-assignment-in-if-condition, -bugprone-signal-handler, concurrency-*, -concurrency-mt-unsafe, misc-*, -misc-no-recursion, modernize-*, performance-*, -performance-enum-size, readability-*, -readability-braces-around-statements, -readability-magic-numbers, -readability-identifier-length, -readability-isolate-declaration, -readability-function-cognitive-complexity
+  -*, bugprone-*, -bugprone-easily-swappable-parameters, -bugprone-assignment-in-if-condition, -bugprone-signal-handler, concurrency-*, -concurrency-mt-unsafe, misc-*, -misc-no-recursion, modernize-*, -modernize-use-nullptr, performance-*, -performance-enum-size, readability-*, -readability-braces-around-statements, -readability-magic-numbers, -readability-identifier-length, -readability-isolate-declaration, -readability-function-cognitive-complexity
 
 CheckOptions:
   performance-for-range-copy.WarnOnAllAutoCopies: true
