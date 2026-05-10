@@ -7,7 +7,7 @@
 
 void bubbleSort(struct Student* students, size_t start, size_t end,
 				int (*compareAlgo)(struct Student*, struct Student*)) {
-	while (end > 0) {
+	while (end > start) {
 		bool swapped = false;
 		for (size_t i = start; i <= end - 1; i++) {
 			if (compareAlgo(&students[i], &students[i + 1]) > 0) {
