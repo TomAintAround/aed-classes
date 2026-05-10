@@ -76,11 +76,11 @@ int main() {
 	printStudents(students1, num1);
 	printf("\n--------------\n\n");
 
-	mergeSort(students1, 0, num1 - 1, compare1);
+	heapSort(students1, 0, num1 - 1, compare1);
 	printStudents(students1, num1);
-	mergeSort(students2, 0, num2 - 1, compare2);
+	heapSort(students2, 0, num2 - 1, compare2);
 	printStudents(students2, num2);
-	mergeSort(students3, 0, num3 - 1, compare3);
+	heapSort(students3, 0, num3 - 1, compare3);
 	printStudents(students3, num3);
 
 	return 0;

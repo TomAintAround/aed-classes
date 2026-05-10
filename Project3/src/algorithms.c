@@ -54,3 +54,37 @@ void mergeSort(struct Student* students, size_t start, size_t end,
 		free(rightStudents);
 	}
 }
+
+static void heapify(struct Student* students, size_t start, size_t end, size_t root,
+					int (*compareAlgo)(struct Student*, struct Student*)) {
+	size_t largest = root;
+	size_t left = (2 * (root - start)) + 1 + start;
+	size_t right = (2 * (root - start)) + 2 + start;
+
+	if (left <= end && compareAlgo(&students[left], &students[largest]) > 0)
+		largest = left;
+
+	if (right <= end && compareAlgo(&students[right], &students[largest]) > 0)
+		largest = right;
+
+	if (largest != root) {
+		struct Student temp = students[root];
+		students[root] = students[largest];
+		students[largest] = temp;
+		heapify(students, start, end, largest, compareAlgo);
+	}
+}
+
+void heapSort(struct Student* students, size_t start, size_t end,
+			  int (*compareAlgo)(struct Student*, struct Student*)) {
+	size_t size = end + 1 - start;
+	for (long i = (long)((size / 2) - 1 + start); i >= (long)start; i--)
+		heapify(students, start, end, i, compareAlgo);
+
+	for (size_t i = end; i > start; i--) {
+		struct Student tmp = students[start];
+		students[start] = students[i];
+		students[i] = tmp;
+		heapify(students, start, i - 1, start, compareAlgo);
+	}
+}
