@@ -5,7 +5,6 @@ Language: C
 PointerAlignment: Left
 AccessModifierOffset: 0
 AlignAfterOpenBracket: Align
-AlignArrayOfStructures: Left
 AlignConsecutiveAssignments: false
 AlignEscapedNewlines: Right
 AlignOperands: true
